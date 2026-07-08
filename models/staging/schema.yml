@@ -1,0 +1,138 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: >
+      Pedidos do e-commerce Olist. Cada linha representa um pedido único.
+      Contém dados de status, timestamps de cada etapa do ciclo do pedido
+      (compra, aprovação, envio, entrega, estimativa).
+
+    columns:
+      - name: order_id
+        description: "Chave primária do pedido. Identificador único no sistema fonte."
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: "Chave estrangeira para identificar o cliente."
+
+      - name: order_status
+        description: "Status atual do pedido no fluxo de e-commerce."
+        tests:
+          - accepted_values:
+              values:
+                - delivered
+                - shipped
+                - approved
+                - canceled
+                - invoiced
+                - processing
+                - created
+                - unavailable
+
+      - name: purchased_at
+        description: "Timestamp da realização da compra pelo cliente."
+
+      - name: approved_at
+        description: "Timestamp da aprovação do pagamento do pedido."
+
+      - name: shipped_at
+        description: "Timestamp do envio do pedido pela transportadora."
+
+      - name: delivered_at
+        description: "Timestamp da entrega do pedido ao cliente final."
+
+      - name: estimated_delivery_at
+        description: "Timestamp estimado de entrega informado ao cliente."
+
+  - name: stg_order_items
+    description: >
+      Itens de cada pedido. Cada linha representa um produto em um pedido.
+      Um pedido pode ter múltiplos itens (ex: 3 produtos diferentes).
+      Contém dados financeiros (preço, frete) e logísticos (data limite de envio).
+
+    columns:
+      - name: order_id
+        description: "Chave estrangeira para o pedido."
+        tests:
+          - not_null
+
+      - name: order_item_sequence
+        description: "Número sequencial do item dentro do pedido (1, 2, 3...)."
+        tests:
+          - not_null
+
+      - name: product_id
+        description: "Chave estrangeira para o produto."
+        tests:
+          - not_null
+
+      - name: seller_id
+        description: "Chave estrangeira para o vendedor do produto."
+
+      - name: shipping_limit_at
+        description: "Data limite para a transportadora enviar o produto."
+
+      - name: price
+        description: "Preço unitário do item no pedido."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: freight_value
+        description: "Valor do frete para este item."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+  - name: stg_customers
+    description: >
+      Clientes do e-commerce. Contém dados de localização
+      (cidade, estado) e identificadores únicos.
+
+    columns:
+      - name: customer_id
+        description: "Chave primária do cliente no sistema de pedidos."
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_unique_id
+        description: "Identificador único do cliente (pode haver múltiplos IDs para o mesmo cliente)."
+        tests:
+          - not_null
+
+      - name: customer_city
+        description: "Cidade do cliente. Padronizada com INITCAP."
+
+      - name: customer_state
+        description: "Estado do cliente (sigla de 2 letras, maiúscula)."
+
+  - name: stg_products
+    description: >
+      Catálogo de produtos do e-commerce. Contém dados de categoria,
+      dimensões físicas (peso, altura, largura, comprimento) e
+      quantidade de fotos.
+
+    columns:
+      - name: product_id
+        description: "Chave primária do produto."
+        tests:
+          - unique
+          - not_null
+
+      - name: product_category_name
+        description: "Nome da categoria do produto (em português)."
+
+      - name: product_weight_g
+        description: "Peso do produto em gramas."
+
+      - name: product_length_cm
+        description: "Comprimento do produto em centímetros."
+
+      - name: product_height_cm
+        description: "Altura do produto em centímetros."
+
+      - name: product_width_cm
+        description: "Largura do produto em centímetros."
