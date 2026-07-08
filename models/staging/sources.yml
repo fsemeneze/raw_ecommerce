@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: raw_ecommerce
+    database: portfolio-ecommerce-499523
+    schema: raw_ecommerce
+    tables:
+      - name: orders
+      - name: order_items
+      - name: customers
+      - name: products

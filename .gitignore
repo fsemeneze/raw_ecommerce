@@ -1,0 +1,11 @@
+portfolio-ecommerce-499523-9a77f92c8a8b.json
+venv/
+logs/
+target/
+dbt_packages/
+profiles.yml
+__pycache__/
+*.pyc
+.env
+.DS_Store
+*.log
