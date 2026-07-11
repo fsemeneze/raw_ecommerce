@@ -1,0 +1,23 @@
+version: 2
+
+exposures:
+  - name: ecommerce_dashboard
+    label: E-commerce Dashboard
+    type: dashboard
+    maturity: low
+    url: https://lookerstudio.google.com/
+    description: >
+      Dashboard de KPIs de e-commerce conectado ao BigQuery.
+      Exibe métricas de receita, entregas, pagamentos e avaliações.
+
+    depends_on:
+      - ref('fct_orders')
+      - ref('dim_customers')
+      - ref('dim_products')
+      - ref('dim_sellers')
+      - ref('fct_payments')
+      - ref('fct_reviews')
+
+    owner:
+      name: Seu Nome
+      email: seu@email.com

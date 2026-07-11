@@ -41,16 +41,15 @@ final as (
             as delivery_delay_days,
         timestamp_diff(o.approved_at, o.purchased_at, hour)
             as approval_hours,
-        -- Regra de negócio: entrega atrasou?
-        case
-            when o.delivered_at > o.estimated_delivery_at
-                then 'late'
-            when o.delivered_at is not null
-                then 'on_time'
-            else 'pending'
-        end as delivery_status
+        {{ delivery_performance('o.delivered_at', 'o.estimated_delivery_at') }} as delivery_status,
+        fp.total_payment_value as payment_value,
+        fp.max_installments as max_installments,
+        fr.avg_review_score as avg_review_score,
+        fr.avg_review_response_hours as avg_review_response_hours
     from orders o
     left join order_metrics om using (order_id)
+    left join {{ ref('fct_payments') }} fp using (order_id)
+    left join {{ ref('fct_reviews') }} fr using (order_id)
 )
 
 select * from final
