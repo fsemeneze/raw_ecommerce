@@ -53,6 +53,15 @@ models:
       - name: product_category_name
         description: "Nome da categoria do produto."
 
+      - name: product_name_length
+        description: "Quantidade de caracteres do nome do produto."
+
+      - name: product_description_length
+        description: "Quantidade de caracteres da descrição do produto."
+
+      - name: product_photos_qty
+        description: "Quantidade de fotos do produto no catálogo."
+
       - name: product_weight_g
         description: "Peso em gramas."
 
@@ -146,3 +155,147 @@ models:
         description: >
           Classificação da entrega: 'on_time' (dentro do prazo),
           'late' (atrasada), ou 'pending' (ainda não entregue).
+
+      - name: payment_value
+        description: "Valor total de pagamentos associados ao pedido (via fct_payments)."
+
+      - name: max_installments
+        description: "Máximo de parcelas utilizadas no pagamento do pedido."
+
+      - name: avg_review_score
+        description: "Média das notas de avaliação do pedido."
+
+      - name: avg_review_response_hours
+        description: "Média de horas para resposta à avaliação."
+
+  - name: dim_sellers
+    description: >
+      Dimensão de vendedores. Contém localização e métricas agregadas
+      de desempenho (total de pedidos, receita, produtos distintos).
+
+    columns:
+      - name: seller_key
+        description: "Chave surrogate gerada por hash MD5."
+        tests:
+          - unique
+          - not_null
+
+      - name: seller_id
+        description: "Identificador do vendedor no sistema fonte."
+
+      - name: zip_code_prefix
+        description: "Prefixo do CEP do vendedor."
+
+      - name: seller_city
+        description: "Cidade do vendedor."
+
+      - name: seller_state
+        description: "Estado do vendedor (UF)."
+
+      - name: lifetime_orders
+        description: "Número total de pedidos realizados pelo vendedor."
+
+      - name: lifetime_revenue
+        description: "Receita total gerada pelo vendedor."
+
+      - name: distinct_products_sold
+        description: "Quantidade de produtos distintos vendidos."
+
+      - name: first_sale_at
+        description: "Timestamp da primeira venda do vendedor."
+
+      - name: last_sale_at
+        description: "Timestamp da última venda do vendedor."
+
+  - name: dim_geolocation
+    description: >
+      Dimensão de geolocalização por CEP. Agrega múltiplas coordenadas
+      (lat/lng) em uma única linha por zip_code_prefix com médias.
+
+    columns:
+      - name: geolocation_key
+        description: "Chave surrogate gerada por hash MD5."
+        tests:
+          - unique
+          - not_null
+
+      - name: zip_code_prefix
+        description: "Prefixo do CEP (chave natural)."
+
+      - name: city
+        description: "Cidade associada ao CEP."
+
+      - name: state
+        description: "Estado (UF) associado ao CEP."
+
+      - name: avg_latitude
+        description: "Média das latitudes das coordenadas do CEP."
+
+      - name: avg_longitude
+        description: "Média das longitudes das coordenadas do CEP."
+
+  - name: fct_payments
+    description: >
+      Tabela fato de pagamentos. Cada linha representa um pedido com
+      valores agregados por tipo de pagamento (crédito, boleto, etc.).
+
+    columns:
+      - name: order_id
+        description: "Identificador do pedido. Chave natural para join com fct_orders."
+        tests:
+          - unique
+          - not_null
+
+      - name: total_payments
+        description: "Quantidade de transações de pagamento no pedido."
+
+      - name: credit_card_value
+        description: "Valor pago com cartão de crédito."
+
+      - name: boleto_value
+        description: "Valor pago com boleto."
+
+      - name: voucher_value
+        description: "Valor pago com voucher."
+
+      - name: debit_card_value
+        description: "Valor pago com cartão de débito."
+
+      - name: max_installments
+        description: "Máximo de parcelas no pedido."
+
+      - name: total_payment_value
+        description: "Valor total pago no pedido (soma de todos os tipos)."
+
+  - name: fct_reviews
+    description: >
+      Tabela fato de avaliações. Cada linha representa um pedido com
+      métricas agregadas de review (notas, contagem de estrelas, tempo de resposta).
+
+    columns:
+      - name: order_id
+        description: "Identificador do pedido. Chave natural para join com fct_orders."
+        tests:
+          - unique
+          - not_null
+
+      - name: total_reviews
+        description: "Quantidade de avaliações do pedido."
+
+      - name: avg_review_score
+        description: "Média das notas de avaliação."
+
+      - name: min_review_score
+        description: "Menor nota de avaliação."
+
+      - name: max_review_score
+        description: "Maior nota de avaliação."
+
+      - name: five_star_count
+        description: "Quantidade de avaliações com nota 5."
+
+      - name: one_star_count
+        description: "Quantidade de avaliações com nota 1."
+
+      - name: avg_review_response_hours
+        description: "Média de horas entre a criação e a resposta da avaliação."

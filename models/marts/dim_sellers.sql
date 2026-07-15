@@ -24,10 +24,14 @@ final as (
         {{ dbt_utils.generate_surrogate_key(['s.seller_id']) }}
             as seller_key,
         s.seller_id,
+        s.zip_code_prefix,
         s.seller_city,
         s.seller_state,
         coalesce(oi.total_orders, 0) as lifetime_orders,
-        coalesce(oi.total_revenue, 0) as lifetime_revenue
+        coalesce(oi.total_revenue, 0) as lifetime_revenue,
+        oi.distinct_products_sold,
+        oi.first_sale_at,
+        oi.last_sale_at
     from sellers s
     left join order_items oi using (seller_id)
 )
