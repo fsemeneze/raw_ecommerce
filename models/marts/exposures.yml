@@ -15,9 +15,12 @@ exposures:
       - ref('dim_customers')
       - ref('dim_products')
       - ref('dim_sellers')
+      - ref('dim_geolocation')
       - ref('fct_payments')
       - ref('fct_reviews')
+      - ref('bi_orders')
+      - ref('bi_order_items')
 
     owner:
-      name: Seu Nome
-      email: seu@email.com
+      name: Fabricio Menezes
+      email: fmenezes722@gmail.com
