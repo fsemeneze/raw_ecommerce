@@ -6,6 +6,10 @@ Projeto de Analytics Engineering usando dbt Core + Google BigQuery com o dataset
 
 ```mermaid
 flowchart LR
+    subgraph Source["📦 Kaggle"]
+        K["Olist Brazilian E-commerce<br/>8 CSVs"]
+    end
+
     subgraph Raw["🗄️ Raw — BigQuery"]
         R[(raw_ecommerce<br/>8 tabelas)]
     end
@@ -27,6 +31,7 @@ flowchart LR
         L["4 páginas: Geral, Produtos,<br/>Logística, Clientes"]
     end
 
+    Source -->|"import CSV"| Raw
     Raw -->|"dbt run"| Staging
     Staging -->|"dbt run"| Marts
     D -.-> F
@@ -38,6 +43,7 @@ flowchart LR
 
 | Camada | Localização | Materialização | Função |
 |--------|-------------|:---:|--------|
+| **Fonte** | [Kaggle - Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) | 8 arquivos CSV | Dados públicos de e-commerce brasileiro |
 | **Raw** | `raw_ecommerce` no BigQuery | Tabelas importadas do CSV | Dados exatamente como vieram do Kaggle |
 | **Staging** | `raw_ecommerce_staging` | Views | CASTs explícitos, padronização de nomes, INITCAP/UPPER |
 | **Marts** | `raw_ecommerce_marts` | Tables | Star schema: dimensões (surrogate keys MD5) + fatos com métricas |
