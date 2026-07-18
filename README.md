@@ -5,102 +5,33 @@ Projeto de Analytics Engineering usando dbt Core + Google BigQuery com o dataset
 ## Arquitetura
 
 ```mermaid
-flowchart TB
-    subgraph Origem["📦 Origem (Kaggle)"]
-        K1["olist_orders_dataset.csv"]
-        K2["olist_order_items_dataset.csv"]
-        K3["olist_customers_dataset.csv"]
-        K4["olist_products_dataset.csv"]
-        K5["olist_order_payments_dataset.csv"]
-        K6["olist_order_reviews_dataset.csv"]
-        K7["olist_sellers_dataset.csv"]
-        K8["olist_geolocation_dataset.csv"]
+flowchart LR
+    subgraph Raw["🗄️ Raw — BigQuery"]
+        R[(raw_ecommerce<br/>8 tabelas)]
     end
 
-    subgraph Raw["🗄️ Camada Raw — BigQuery (raw_ecommerce)"]
-        R1["orders ─ 99.441 linhas"]
-        R2["order_items ─ 112.650 linhas"]
-        R3["customers ─ 99.441 linhas"]
-        R4["products ─ 32.951 linhas"]
-        R5["payments ─ 103.886 linhas"]
-        R6["reviews ─ 99.224 linhas"]
-        R7["sellers ─ 3.095 linhas"]
-        R8["geolocation ─ 1.000.163 linhas"]
+    subgraph Staging["🔧 Staging — views"]
+        S["stg_orders / stg_order_items / stg_customers<br/>stg_products / stg_payments / stg_reviews<br/>stg_sellers / stg_geolocation"]
     end
 
-    subgraph Staging["🔧 Camada Staging — dbt (views em raw_ecommerce_staging)"]
-        S1["stg_orders<br/>CASTs, renomeio, timestamps"]
-        S2["stg_order_items<br/>preço/frete → NUMERIC"]
-        S3["stg_customers<br/>INITCAP cidade, UPPER estado"]
-        S4["stg_products<br/>dimensões → FLOAT64"]
-        S5["stg_payments<br/>tipos e parcelas"]
-        S6["stg_reviews<br/>notas e timestamps"]
-        S7["stg_sellers<br/>cidade/estado padronizados"]
-        S8["stg_geolocation<br/>coordenadas e localização"]
+    subgraph Marts["🏗️ Marts — tables"]
+        D["dim_customers / dim_products<br/>dim_sellers / dim_geolocation"]
+        F["fct_orders / fct_payments / fct_reviews"]
     end
 
-    subgraph Marts["🏗️ Camada Marts — dbt (tables em raw_ecommerce_marts)"]
-        D1["dim_customers<br/>surrogate key, lifetime orders"]
-        D2["dim_products<br/>peso_kg, volume_cm³"]
-        D3["dim_sellers<br/>lifetime revenue, produtos"]
-        D4["dim_geolocation<br/>lat/lng médios por CEP"]
-        F1["fct_orders<br/>fato central: ciclo + entrega + finanças"]
-        F2["fct_payments<br/>valores por tipo de pagamento"]
-        F3["fct_reviews<br/>notas, estrelas, tempo resposta"]
-    end
-
-    subgraph BI["📊 Camada BI — dbt (views em raw_ecommerce_marts)"]
-        V1["bi_orders<br/>1 linha = 1 pedido<br/>cliente + entrega + review"]
-        V2["bi_order_items<br/>1 linha = 1 item<br/>produto + vendedor + frete"]
+    subgraph BI["📊 BI — views"]
+        B["bi_orders / bi_order_items"]
     end
 
     subgraph Dashboard["📈 Looker Studio"]
-        L1["Página 1: Visão Geral<br/>Receita, pedidos, ticket, % on-time"]
-        L2["Página 2: Produtos<br/>Categorias, top 20, itens vendidos"]
-        L3["Página 3: Logística<br/>On-time vs late, mapa de atraso"]
-        L4["Página 4: Clientes<br/>Notas, distribuição geográfica, LTV"]
+        L["4 páginas: Geral, Produtos,<br/>Logística, Clientes"]
     end
 
-    K1 --> R1
-    K2 --> R2
-    K3 --> R3
-    K4 --> R4
-    K5 --> R5
-    K6 --> R6
-    K7 --> R7
-    K8 --> R8
-
-    R1 --> S1
-    R2 --> S2
-    R3 --> S3
-    R4 --> S4
-    R5 --> S5
-    R6 --> S6
-    R7 --> S7
-    R8 --> S8
-
-    S1 --> F1
-    S2 --> F1
-    S3 --> D1
-    S4 --> D2
-    S5 --> F2
-    S6 --> F3
-    S7 --> D3
-    S8 --> D4
-
-    D1 --> F1
-    D2 -.-> V2
-    D3 -.-> V2
-    F1 --> V1
-    F1 --> V2
-    F2 --> V1
-    F3 --> V1
-    D1 --> V1
-
-    V1 --> L1
-    V2 --> L2
-    V1 --> L3
-    V1 --> L4
+    Raw -->|"dbt run"| Staging
+    Staging -->|"dbt run"| Marts
+    D -.-> F
+    F -->|"dbt run"| BI
+    BI -->|"consulta direta"| Dashboard
 ```
 
 ### Resumo das camadas
