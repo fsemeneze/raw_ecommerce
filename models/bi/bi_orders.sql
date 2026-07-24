@@ -6,6 +6,10 @@ customers as (
     select * from {{ ref('dim_customers') }}
 ),
 
+payments as (
+    select * from {{ ref('fct_payments') }}
+),
+
 final as (
     select
         o.order_key,
@@ -31,6 +35,11 @@ final as (
         o.max_installments,
         o.avg_review_score,
         o.avg_review_response_hours,
+        p.credit_card_value,
+        p.boleto_value,
+        p.debit_card_value,
+        p.voucher_value,
+        p.total_payments,
         c.customer_key,
         c.customer_unique_id,
         c.customer_city,
@@ -40,6 +49,7 @@ final as (
         c.last_order_at as customer_last_order_at
     from orders o
     left join customers c on o.customer_key = c.customer_key
+    left join payments p on o.order_id = p.order_id
 )
 
 select * from final

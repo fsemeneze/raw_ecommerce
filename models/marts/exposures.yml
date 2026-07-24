@@ -20,6 +20,7 @@ exposures:
       - ref('fct_reviews')
       - ref('bi_orders')
       - ref('bi_order_items')
+      - ref('bi_sellers')
 
     owner:
       name: Fabricio Menezes
