@@ -1,0 +1,201 @@
+version: 2
+
+models:
+  - name: bi_orders
+    description: >
+      Visão denormalizada por pedido para consumo direto no Looker Studio.
+      Junta dados de pedido, pagamento e cliente sem necessidade de JOINs.
+
+    columns:
+      - name: order_key
+        description: "Chave surrogate do pedido (MD5)."
+        tests:
+          - unique
+          - not_null
+
+      - name: order_id
+        description: "Identificador do pedido no sistema fonte."
+        tests:
+          - unique
+          - not_null
+
+      - name: purchased_at
+        description: "Timestamp da compra."
+
+      - name: approved_at
+        description: "Timestamp da aprovação do pagamento."
+
+      - name: shipped_at
+        description: "Timestamp do envio pela transportadora."
+
+      - name: delivered_at
+        description: "Timestamp da entrega ao cliente."
+
+      - name: estimated_delivery_at
+        description: "Timestamp estimado de entrega."
+
+      - name: year_month
+        description: "Ano-mês da compra no formato YYYYMM (pré-extraído para filtros)."
+
+      - name: year
+        description: "Ano da compra."
+
+      - name: month
+        description: "Mês da compra (01-12)."
+
+      - name: order_status
+        description: "Status do pedido (delivered, shipped, canceled, etc.)."
+
+      - name: delivery_delay_days
+        description: "Dias entre compra e entrega. NULL se não entregue."
+
+      - name: approval_hours
+        description: "Horas entre compra e aprovação do pagamento."
+
+      - name: delivery_status
+        description: "Classificação: on_time, late ou pending."
+
+      - name: total_items
+        description: "Quantidade de itens no pedido."
+
+      - name: total_order_value
+        description: "Valor total dos itens do pedido."
+
+      - name: total_freight
+        description: "Valor total do frete do pedido."
+
+      - name: distinct_products
+        description: "Produtos distintos no pedido."
+
+      - name: distinct_sellers
+        description: "Vendedores distintos no pedido."
+
+      - name: payment_value
+        description: "Valor total pago no pedido."
+
+      - name: max_installments
+        description: "Máximo de parcelas do pagamento."
+
+      - name: avg_review_score
+        description: "Média das notas de avaliação do pedido."
+
+      - name: avg_review_response_hours
+        description: "Média de horas para resposta à avaliação."
+
+      - name: credit_card_value
+        description: "Valor pago com cartão de crédito."
+
+      - name: boleto_value
+        description: "Valor pago com boleto."
+
+      - name: debit_card_value
+        description: "Valor pago com cartão de débito."
+
+      - name: voucher_value
+        description: "Valor pago com voucher."
+
+      - name: total_payments
+        description: "Quantidade de transações de pagamento."
+
+      - name: customer_key
+        description: "Chave surrogate do cliente (FK para dim_customers)."
+        tests:
+          - not_null
+
+      - name: customer_unique_id
+        description: "Identificador único do cliente."
+
+      - name: customer_city
+        description: "Cidade do cliente."
+
+      - name: customer_state
+        description: "Estado do cliente (UF)."
+
+      - name: lifetime_orders
+        description: "Total de pedidos do cliente no histórico."
+
+      - name: customer_first_order_at
+        description: "Primeira compra do cliente."
+
+      - name: customer_last_order_at
+        description: "Última compra do cliente."
+
+  - name: bi_order_items
+    description: >
+      Visão denormalizada por item de pedido para consumo direto no Looker Studio.
+      Junta dados de produto (com categoria agrupada em português) e vendedor.
+
+    columns:
+      - name: order_id
+        description: "Identificador do pedido."
+        tests:
+          - not_null
+
+      - name: order_key
+        description: "Chave surrogate do pedido (MD5)."
+
+      - name: purchased_at
+        description: "Timestamp da compra."
+
+      - name: delivery_status
+        description: "Classificação da entrega: on_time, late ou pending."
+
+      - name: delivery_delay_days
+        description: "Dias entre compra e entrega."
+
+      - name: order_item_sequence
+        description: "Sequência do item dentro do pedido."
+
+      - name: product_id
+        description: "Identificador do produto."
+        tests:
+          - not_null
+
+      - name: product_key
+        description: "Chave surrogate do produto (MD5)."
+
+      - name: product_category_name
+        description: "Categoria original do produto."
+
+      - name: product_category_group
+        description: >
+          Categoria agrupada em português (28 grupos). Agrupa categorias
+          similares como construcao_ferramentas_* em 'Construção e Ferramentas'.
+
+      - name: product_weight_kg
+        description: "Peso do produto em quilogramas."
+
+      - name: product_volume_cm3
+        description: "Volume do produto em cm³."
+
+      - name: seller_id
+        description: "Identificador do vendedor."
+
+      - name: seller_key
+        description: "Chave surrogate do vendedor (MD5)."
+
+      - name: seller_zip_code_prefix
+        description: "Prefixo do CEP do vendedor."
+
+      - name: seller_city
+        description: "Cidade do vendedor."
+
+      - name: seller_state
+        description: "Estado do vendedor (UF)."
+
+      - name: price
+        description: "Preço unitário do item."
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+
+      - name: freight_value
+        description: "Valor do frete do item."
+        tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+
+      - name: total_item_value
+        description: "Preço + frete do item."

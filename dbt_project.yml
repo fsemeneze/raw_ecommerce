@@ -25,11 +25,7 @@ models:
       dim_geolocation:
         +materialized: table
         +schema: marts
-        +partition_by:
-          field: zip_code_prefix
-          data_type: string
-          granularity: day
-        +cluster_by: ["state"]
+        +cluster_by: ["state", "zip_code_prefix"]
     bi:
       +materialized: view
       +schema: marts

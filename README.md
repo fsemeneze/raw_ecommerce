@@ -124,7 +124,7 @@ Star schema com surrogate keys (MD5) e métricas agregadas.
 | `dim_customers` | 99.441 | `customer_key` (MD5 de customer_id) |
 | `dim_products` | 32.951 | `product_key` (MD5 de product_id) |
 | `dim_sellers` | 3.095 | `seller_key` (MD5 de seller_id) |
-| `dim_geolocation` | 19.000 | `geolocation_key` (MD5 de zip_code_prefix) — particionada e clusterizada |
+| `dim_geolocation` | 19.000 | `geolocation_key` (MD5 de zip_code_prefix) — clusterizada por `state` + `zip_code_prefix` |
 
 **Fatos:**
 
@@ -176,13 +176,14 @@ Denormalizadas para consumo direto no Looker Studio — sem necessidade de JOINs
 
 ## Testes
 
-**31 testes de qualidade** (todos PASS):
+**40 testes de qualidade** (todos PASS):
 
 - `unique` + `not_null` em todas as surrogate keys (customer_key, product_key, seller_key, geolocation_key, order_key, payment_key)
 - `accepted_values` para `order_status` (8 valores válidos)
 - `relationships` entre `fct_orders.customer_key` e `dim_customers.customer_key`
 - `expression_is_true` para valores não negativos (price, freight_value, total_order_value)
 - Teste singular: `assert_fct_orders_delivery_delay_non_negative`
+- Testes de integridade nos modelos BI (`bi_orders`, `bi_order_items`)
 
 ## Comandos
 
@@ -191,7 +192,7 @@ Denormalizadas para consumo direto no Looker Studio — sem necessidade de JOINs
 | `dbt debug` | Testa conexão com BigQuery |
 | `dbt deps` | Instala pacotes (dbt_utils) |
 | `dbt run` | Executa todos os modelos (8 views + 7 tables + 2 views) |
-| `dbt test` | Executa 31 testes de qualidade |
+| `dbt test` | Executa 40 testes de qualidade |
 | `dbt build` | `run` + `test` em um comando |
 | `dbt docs generate` | Gera documentação e lineage |
 | `dbt docs serve` | Serve documentação em http://localhost:8080 |

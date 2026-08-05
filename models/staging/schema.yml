@@ -78,13 +78,15 @@ models:
         description: "Preço unitário do item no pedido."
         tests:
           - dbt_utils.expression_is_true:
-              expression: ">= 0"
+              arguments:
+                expression: ">= 0"
 
       - name: freight_value
         description: "Valor do frete para este item."
         tests:
           - dbt_utils.expression_is_true:
-              expression: ">= 0"
+              arguments:
+                expression: ">= 0"
 
   - name: stg_customers
     description: >

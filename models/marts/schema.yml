@@ -100,8 +100,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('dim_customers')
-              field: customer_key
+              arguments:
+                to: ref('dim_customers')
+                field: customer_key
 
       - name: order_id
         description: "Identificador do pedido no sistema fonte."
@@ -131,7 +132,8 @@ models:
         description: "Valor total do pedido (soma dos preços dos itens)."
         tests:
           - dbt_utils.expression_is_true:
-              expression: ">= 0"
+              arguments:
+                expression: ">= 0"
 
       - name: total_freight
         description: "Valor total do frete do pedido."
