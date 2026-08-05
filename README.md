@@ -169,6 +169,8 @@ Denormalizadas para consumo direto no Looker Studio — sem necessidade de JOINs
 
 2 páginas conectadas diretamente às views `bi_order_items` e `bi_orders`.
 
+**Abrir:** [E-commerce Olist — Análise de Vendas e Logística](https://datastudio.google.com/s/hW9BUSFkDpI)
+
 | Página | View | KPIs |
 |--------|------|------|
 | **Produtos** | `bi_order_items` | Itens vendidos, produtos distintos, preço médio, receita por categoria, top 20 produtos, frete médio |

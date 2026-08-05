@@ -2,13 +2,14 @@ version: 2
 
 exposures:
   - name: ecommerce_dashboard
-    label: E-commerce Dashboard
+    label: E-commerce Olist — Análise de Vendas e Logística
     type: dashboard
-    maturity: low
-    url: https://lookerstudio.google.com/
+    maturity: high
+    url: https://datastudio.google.com/s/hW9BUSFkDpI
     description: >
       Dashboard de KPIs de e-commerce conectado ao BigQuery.
-      Exibe métricas de receita, entregas, pagamentos e avaliações.
+      2 páginas — Produtos (bi_order_items) e Pedidos (bi_orders) —
+      com métricas de vendas, entregas, pagamentos e avaliações.
 
     depends_on:
       - ref('fct_orders')
