@@ -24,11 +24,11 @@ flowchart LR
     end
 
     subgraph BI["📊 BI — views"]
-        B["bi_orders / bi_order_items / bi_sellers"]
+        B["bi_orders / bi_order_items"]
     end
 
     subgraph Dashboard["📈 Looker Studio"]
-        L["Página 1: Produtos<br/>Página 2: Pedidos<br/>Página 3: Sellers"]
+        L["Página 1: Produtos<br/>Página 2: Pedidos"]
     end
 
     Source -->|"import CSV"| Raw
@@ -48,7 +48,7 @@ flowchart LR
 | **Staging** | `raw_ecommerce_staging` | Views | CASTs, padronização de nomes, INITCAP/UPPER |
 | **Marts** | `raw_ecommerce_marts` | Tables | Star schema: dimensões + fatos com surrogate keys MD5 |
 | **BI** | `raw_ecommerce_marts` | Views | Denormalização para consumo direto do Looker Studio |
-| **Dashboard** | Looker Studio | Gráficos e filtros | 3 páginas com KPIs de produtos, pedidos e sellers |
+| **Dashboard** | Looker Studio | Gráficos e filtros | 2 páginas com KPIs de produtos e pedidos |
 
 ## Stack
 
@@ -84,10 +84,9 @@ raw_ecommerce/
 │   │   ├── fct_orders.sql
 │   │   ├── fct_payments.sql
 │   │   └── fct_reviews.sql
-│   └── bi/             # 3 modelos para dashboard (views)
+│   └── bi/             # 2 modelos para dashboard (views)
 │       ├── bi_orders.sql
-│       ├── bi_order_items.sql
-│       └── bi_sellers.sql
+│       └── bi_order_items.sql
 ├── macros/             # 4 macros Jinja customizadas
 ├── tests/              # 1 teste singular
 ├── seeds/              # Seeds (vazio)
@@ -135,7 +134,7 @@ Star schema com surrogate keys (MD5) e métricas agregadas.
 | `fct_payments` | 99.441 | Valores pivotados por tipo (credit_card, boleto, voucher, debit_card) |
 | `fct_reviews` | 98.688 | Agregação de notas (avg, min, max, five_star_count, one_star_count) |
 
-### Camada BI (3 views)
+### Camada BI (2 views)
 
 Denormalizadas para consumo direto no Looker Studio — sem necessidade de JOINs nas queries.
 
@@ -157,16 +156,6 @@ Denormalizadas para consumo direto no Looker Studio — sem necessidade de JOINs
 | `price`, `freight_value`, `total_item_value` | Métricas financeiras por item |
 | `seller_city`, `seller_state` | Localização do vendedor |
 
-#### `bi_sellers` — Visão por vendedor
-
-| Coluna | Descrição |
-|--------|-----------|
-| `seller_key` a `last_sale_at` | Dados da dimensão |
-| `avg_item_price`, `avg_freight_value` | Médias por seller |
-| `total_orders`, `on_time_orders` | Volume e performance |
-| `on_time_rate` | % de entregas no prazo |
-| `avg_delivery_delay_days` | Dias médios de atraso |
-
 ## Macros Customizadas
 
 | Macro | Localização | Função |
@@ -178,13 +167,12 @@ Denormalizadas para consumo direto no Looker Studio — sem necessidade de JOINs
 
 ## Dashboard (Looker Studio)
 
-3 páginas conectadas diretamente às views `bi_orders`, `bi_order_items` e `bi_sellers`.
+2 páginas conectadas diretamente às views `bi_order_items` e `bi_orders`.
 
 | Página | View | KPIs |
 |--------|------|------|
 | **Produtos** | `bi_order_items` | Itens vendidos, produtos distintos, preço médio, receita por categoria, top 20 produtos, frete médio |
 | **Pedidos** | `bi_orders` | Total de pedidos, receita total, ticket médio, pedidos por mês, delivery on-time vs late, pagamentos por tipo |
-| **Sellers** | `bi_sellers` | Total de sellers, receita total gerada, ticket médio, top sellers, sellers por estado, % on-time, atraso médio |
 
 ## Testes
 
@@ -202,7 +190,7 @@ Denormalizadas para consumo direto no Looker Studio — sem necessidade de JOINs
 |---------|-----------|
 | `dbt debug` | Testa conexão com BigQuery |
 | `dbt deps` | Instala pacotes (dbt_utils) |
-| `dbt run` | Executa todos os modelos (8 views + 7 tables + 3 views) |
+| `dbt run` | Executa todos os modelos (8 views + 7 tables + 2 views) |
 | `dbt test` | Executa 31 testes de qualidade |
 | `dbt build` | `run` + `test` em um comando |
 | `dbt docs generate` | Gera documentação e lineage |
